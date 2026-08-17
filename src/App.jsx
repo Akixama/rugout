@@ -1,7 +1,37 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { scanToken } from "./lib/solana";
 import Sniffer from "./components/Sniffer";
 import "./App.css";
+
+// Adds .is-visible the first time an element scrolls into view, then stops watching.
+function useReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return undefined;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, visible];
+}
 
 const EXAMPLES = [
   {
@@ -124,6 +154,13 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
+  const [proofRef, proofVisible] = useReveal();
+  const [sampleGridRef, sampleGridVisible] = useReveal();
+  const [checksRef, checksVisible] = useReveal();
+  const [checksGridRef, checksGridVisible] = useReveal();
+  const [howRef, howVisible] = useReveal();
+  const [ctaRef, ctaVisible] = useReveal();
+
   async function runScan(addr) {
     const target = (addr ?? address).trim();
     if (!target || status === "scanning") return;
@@ -159,14 +196,17 @@ export default function App() {
       <main id="top">
         <section className="hero shell">
           <div className="hero-glow" />
-          <div className="eyebrow"><span>✦</span> Solana token risk scanner</div>
-          <h1>Know what’s under the <em>rug.</em></h1>
-          <p className="hero-copy">
+          <div className="eyebrow hero-in" style={{ animationDelay: "40ms" }}><span>✦</span> Solana token risk scanner</div>
+          <h1 className="hero-in" style={{ animationDelay: "110ms" }}>Know what’s under the <em>rug.</em></h1>
+          <p className="hero-copy hero-in" style={{ animationDelay: "190ms" }}>
             One mint address. One straight answer. Rugout checks the token permissions
             and holder concentration that can turn a trade against you.
           </p>
 
-          <div className={`scanner-shell ${status === "scanning" ? "is-scanning" : ""}`}>
+          <div
+            className={`scanner-shell hero-in ${status === "scanning" ? "is-scanning" : ""}`}
+            style={{ animationDelay: "270ms" }}
+          >
             <div className="scanner-label">
               <span>Solana mint address</span>
               <span className="scanner-network">SOL</span>
@@ -195,7 +235,7 @@ export default function App() {
             )}
           </div>
 
-          <div className="examples">
+          <div className="examples hero-in" style={{ animationDelay: "340ms" }}>
             <span>Not sure what to paste?</span>
             {EXAMPLES.map((example) => (
               <button
@@ -212,7 +252,7 @@ export default function App() {
           {result && <VerdictCard result={result} />}
 
           {!result && status !== "scanning" && (
-            <div className="hero-preview" aria-hidden="true">
+            <div className="hero-preview hero-in" style={{ animationDelay: "410ms" }} aria-hidden="true">
               <div className="preview-card">
                 <div className="preview-top">
                   <div>
@@ -239,7 +279,11 @@ export default function App() {
           )}
         </section>
 
-        <section className="proof-section section shell" id="examples">
+        <section
+          className={`proof-section section shell reveal ${proofVisible ? "is-visible" : ""}`}
+          id="examples"
+          ref={proofRef}
+        >
           <div className="section-heading split-heading">
             <div>
               <span className="section-kicker">See the answer first</span>
@@ -251,7 +295,10 @@ export default function App() {
             </p>
           </div>
 
-          <div className="sample-grid">
+          <div
+            className={`sample-grid reveal-stagger ${sampleGridVisible ? "is-visible" : ""}`}
+            ref={sampleGridRef}
+          >
             {SAMPLE_SCANS.map((scan) => (
               <article className={`sample-card sample-${scan.verdict}`} key={scan.token}>
                 <div className="sample-head">
@@ -276,13 +323,19 @@ export default function App() {
 
         <section className="checks-section section" id="checks">
           <div className="shell">
-            <div className="section-heading centered-heading">
+            <div
+              className={`section-heading centered-heading reveal ${checksVisible ? "is-visible" : ""}`}
+              ref={checksRef}
+            >
               <span className="section-kicker">Three checks. One verdict.</span>
               <h2>The risk signals that matter first.</h2>
               <p>Focused enough to understand. Useful enough to stop obvious mistakes.</p>
             </div>
 
-            <div className="checks-grid">
+            <div
+              className={`checks-grid reveal-stagger ${checksGridVisible ? "is-visible" : ""}`}
+              ref={checksGridRef}
+            >
               {CHECKS.map((check) => (
                 <article className="check-card" key={check.number}>
                   <div className="check-number">{check.number}</div>
@@ -297,7 +350,7 @@ export default function App() {
         </section>
 
         <section className="how-section section shell" id="how">
-          <div className="how-card">
+          <div className={`how-card reveal ${howVisible ? "is-visible" : ""}`} ref={howRef}>
             <div className="how-copy">
               <span className="section-kicker">From mint to meaning</span>
               <h2>One paste. No twelve tabs.</h2>
@@ -314,7 +367,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="final-cta shell">
+        <section className={`final-cta shell reveal ${ctaVisible ? "is-visible" : ""}`} ref={ctaRef}>
           <div className="cta-mascot"><Sniffer pose="idle" size={132} /></div>
           <span className="section-kicker">Check before you trust</span>
           <h2>Paste it before you ape it.</h2>
