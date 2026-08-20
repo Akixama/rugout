@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap');
 
 :root {
-  --bg: #12100d;
-  --surface: #191611;
-  --surface-2: #211d16;
-  --paper: #f1ecdf;
-  --paper-2: #e7dfcf;
-  --ink: #f4efe5;
-  --ink-dark: #17140f;
-  --muted: #a69d8d;
-  --line: #393226;
-  --gold: #e7ae43;
-  --gold-soft: #7a5c28;
-  --danger: #ef6457;
-  --warning: #e7ae43;
-  --clear: #5fbd8b;
+  --bg: #f3f3ee;
+  --surface: #ffffff;
+  --surface-2: #e9e9e2;
+  --paper: #ffffff;
+  --paper-2: #f4f4ef;
+  --ink: #11110f;
+  --ink-dark: #11110f;
+  --muted: #6d6d65;
+  --line: #dcdcd4;
+  --gold: #d8ff59;
+  --gold-soft: #a9ca38;
+  --danger: #f05a47;
+  --warning: #e49a22;
+  --clear: #26835a;
   --font-display: 'Manrope', sans-serif;
   --font-serif: 'Newsreader', serif;
   --font-mono: 'DM Mono', monospace;
@@ -32,9 +32,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 50% -12%, rgba(231, 174, 67, 0.11), transparent 31rem),
-    var(--bg);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
@@ -43,16 +41,7 @@ body {
   position: relative;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.35;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-}
+body::before { content: none; }
 
 #root {
   position: relative;
@@ -84,13 +73,13 @@ img, svg {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid #11110f;
   outline-offset: 3px;
   border-radius: 2px;
 }
 
 ::selection {
-  background: var(--gold);
+  background: #d8ff59;
   color: var(--ink-dark);
 }
 
@@ -99,15 +88,15 @@ img, svg {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: #eeeeea;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--line);
+  background: #b9b9b1;
   border: 3px solid var(--bg);
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-soft);
+  background: #92928a;
 }

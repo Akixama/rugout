@@ -154,12 +154,8 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  const [proofRef, proofVisible] = useReveal();
   const [sampleGridRef, sampleGridVisible] = useReveal();
-  const [checksRef, checksVisible] = useReveal();
   const [checksGridRef, checksGridVisible] = useReveal();
-  const [howRef, howVisible] = useReveal();
-  const [ctaRef, ctaVisible] = useReveal();
 
   async function runScan(addr) {
     const target = (addr ?? address).trim();
@@ -179,206 +175,149 @@ export default function App() {
   }
 
   return (
-    <div className="page">
-      <header className="topbar shell">
-        <a className="wordmark" href="#top" aria-label="Rugout home">
-          <span className="fold-icon" />
-          Rugout
+    <div className="rugout-app" id="top">
+      <header className="app-nav">
+        <a className="app-brand" href="#top" aria-label="Rugout home">
+          <span className="brand-mark"><span /></span>
+          <span>rugout</span>
         </a>
-        <nav className="nav-links" aria-label="Primary navigation">
-          <a href="#examples">Examples</a>
-          <a href="#checks">What we check</a>
-          <a href="#how">How it works</a>
+        <nav className="nav-segment" aria-label="Primary navigation">
+          <a className="is-active" href="#top">Scan</a>
+          <a href="#examples">Signals</a>
+          <a href="#checks">Method</a>
         </nav>
-        <span className="network-pill"><i /> Solana mainnet</span>
+        <div className="nav-meta">
+          <span className="live-pill"><i /> Solana live</span>
+          <a className="nav-cta" href="#scan">Check <strong>a</strong> token</a>
+        </div>
       </header>
 
-      <main id="top">
-        <section className="hero shell">
-          <div className="hero-glow" />
-          <div className="eyebrow hero-in" style={{ animationDelay: "40ms" }}><span>✦</span> Solana token risk scanner</div>
-          <h1 className="hero-in" style={{ animationDelay: "110ms" }}>Know what’s under the <em>rug.</em></h1>
-          <p className="hero-copy hero-in" style={{ animationDelay: "190ms" }}>
-            One mint address. One straight answer. Rugout checks the token permissions
-            and holder concentration that can turn a trade against you.
-          </p>
+      <main className="app-main">
+        <section className="scan-stage" id="scan">
+          <div className="scan-copy">
+            <span className="product-kicker"><i /> Onchain risk, made obvious</span>
+            <h1>See the risk<br />before the <em>rug.</em></h1>
+            <p>
+              Paste any Solana mint. Rugout turns token permissions and holder
+              concentration into one clear, readable verdict.
+            </p>
 
-          <div
-            className={`scanner-shell hero-in ${status === "scanning" ? "is-scanning" : ""}`}
-            style={{ animationDelay: "270ms" }}
-          >
-            <div className="scanner-label">
-              <span>Solana mint address</span>
-              <span className="scanner-network">SOL</span>
-            </div>
-            <div className="scan-box">
-              <span className="address-mark">◎</span>
-              <input
-                value={address}
-                onChange={(event) => setAddress(event.target.value)}
-                onKeyDown={(event) => event.key === "Enter" && runScan()}
-                placeholder="Paste a token mint address"
-                spellCheck={false}
-                aria-label="Solana token mint address"
-              />
-              <button onClick={() => runScan()} disabled={status === "scanning" || !address.trim()}>
-                <span>{status === "scanning" ? "Checking" : "Scan token"}</span>
-                <Icon name="arrow" />
-              </button>
-            </div>
-
-            {status === "scanning" && (
-              <div className="scan-progress" role="status">
-                <div className="progress-line"><span /></div>
-                <span>Checking authorities, holders, and wallet history…</span>
+            <div className={`quick-scan ${status === "scanning" ? "is-scanning" : ""}`}>
+              <label htmlFor="mint-address">Token mint address</label>
+              <div className="quick-scan-row">
+                <span className="mint-icon">◎</span>
+                <input
+                  id="mint-address"
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  onKeyDown={(event) => event.key === "Enter" && runScan()}
+                  placeholder="Paste Solana address"
+                  spellCheck={false}
+                />
+                <button onClick={() => runScan()} disabled={status === "scanning" || !address.trim()}>
+                  <span>{status === "scanning" ? "Scanning" : "Scan"}</span>
+                  <Icon name="arrow" />
+                </button>
               </div>
-            )}
+              {status === "scanning" && (
+                <div className="scan-progress" role="status">
+                  <div className="progress-line"><span /></div>
+                  <span>Reading onchain signals…</span>
+                </div>
+              )}
+            </div>
+
+            <div className="scan-footnote">
+              {EXAMPLES.map((example) => (
+                <button key={example.address} onClick={() => runScan(example.address)}>
+                  Try a safe example <span>↗</span>
+                </button>
+              ))}
+              <span><i>✓</i> Read-only. No wallet connection.</span>
+            </div>
           </div>
 
-          <div className="examples hero-in" style={{ animationDelay: "340ms" }}>
-            <span>Not sure what to paste?</span>
-            {EXAMPLES.map((example) => (
-              <button
-                key={example.address}
-                className="example-chip"
-                onClick={() => runScan(example.address)}
-              >
-                {example.label} <span>↗</span>
-              </button>
-            ))}
-          </div>
-
-          {status === "error" && <div className="error-banner">{error}</div>}
-          {result && <VerdictCard result={result} />}
-
-          {!result && status !== "scanning" && (
-            <div className="hero-preview hero-in" style={{ animationDelay: "410ms" }} aria-hidden="true">
-              <div className="preview-card">
-                <div className="preview-top">
-                  <div>
-                    <span className="preview-kicker">Example scan</span>
-                    <strong>JUP</strong>
-                  </div>
-                  <span className="risk-badge clear">LOW RISK</span>
-                </div>
-                <div className="preview-score">
-                  <div className="score-ring"><span>3</span><small>checks</small></div>
-                  <p><strong>No major flags.</strong><br />Permissions look clean and supply is not heavily concentrated.</p>
-                </div>
-                <div className="mini-checks">
-                  <span><i className="good">✓</i> Mint revoked</span>
-                  <span><i className="good">✓</i> Freeze revoked</span>
-                  <span><i className="good">✓</i> Holders checked</span>
-                </div>
-              </div>
-              <div className="preview-mascot">
-                <span className="mascot-note">I found the loose threads.</span>
-                <Sniffer pose="clear" size={152} />
-              </div>
+          <aside className="risk-preview" aria-label="Example risk snapshot">
+            <div className="preview-toolbar">
+              <span className="window-dots"><i /><i /><i /></span>
+              <span>Risk snapshot</span>
+              <span className="preview-time">Now</span>
             </div>
-          )}
+            <div className="preview-token">
+              <div className="preview-avatar">J</div>
+              <div><strong>Jupiter</strong><span>JUP · Solana</span></div>
+              <span className="risk-badge clear">LOW RISK</span>
+            </div>
+            <div className="preview-verdict">
+              <div>
+                <span>Rugout verdict</span>
+                <strong>No major flags.</strong>
+              </div>
+              <Sniffer pose="clear" size={118} />
+            </div>
+            <div className="preview-signals">
+              <div><span><i className="signal-ok">✓</i> Mint authority</span><strong>Revoked</strong></div>
+              <div><span><i className="signal-ok">✓</i> Freeze authority</span><strong>Revoked</strong></div>
+              <div><span><i className="signal-ok">✓</i> Top 10 holders</span><strong>14.2%</strong></div>
+            </div>
+            <div className="preview-bottom"><span>3 signals checked</span><span>View full report ↗</span></div>
+          </aside>
         </section>
 
-        <section
-          className={`proof-section section shell reveal ${proofVisible ? "is-visible" : ""}`}
-          id="examples"
-          ref={proofRef}
-        >
-          <div className="section-heading split-heading">
-            <div>
-              <span className="section-kicker">See the answer first</span>
-              <h2>What a Rugout scan looks like.</h2>
-            </div>
-            <p>
-              No wall of raw blockchain data. Every result turns the important signals
-              into a verdict you can understand in seconds.
-            </p>
-          </div>
+        {status === "error" && <div className="error-banner">{error}</div>}
+        {result && <VerdictCard result={result} />}
 
-          <div
-            className={`sample-grid reveal-stagger ${sampleGridVisible ? "is-visible" : ""}`}
-            ref={sampleGridRef}
-          >
+        <section className="confidence-strip" aria-label="Rugout product benefits">
+          <div><strong>3</strong><span>core risk checks</span></div>
+          <div><strong>10</strong><span>top holders inspected</span></div>
+          <div><strong>0</strong><span>wallet permissions needed</span></div>
+          <p>Public Solana data,<br />translated for humans.</p>
+        </section>
+
+        <section className="signal-section" id="examples">
+          <div className="section-topline">
+            <div><span className="product-kicker">Readable by default</span><h2>Three outcomes.<br />Zero guesswork.</h2></div>
+            <p>Rugout prioritizes the signals that can ruin a trade, then explains them without the explorer jargon.</p>
+          </div>
+          <div className={`signal-grid reveal-stagger ${sampleGridVisible ? "is-visible" : ""}`} ref={sampleGridRef}>
             {SAMPLE_SCANS.map((scan) => (
-              <article className={`sample-card sample-${scan.verdict}`} key={scan.token}>
-                <div className="sample-head">
-                  <div className="token-glyph">{scan.token.slice(0, 1)}</div>
-                  <div>
-                    <strong>{scan.token}</strong>
-                    <code>{scan.address}</code>
-                  </div>
+              <article className={`signal-card signal-${scan.verdict}`} key={scan.token}>
+                <div className="signal-card-head">
+                  <span className="signal-token">{scan.token.slice(0, 1)}</span>
+                  <div><strong>{scan.token}</strong><code>{scan.address}</code></div>
                   <span className={`risk-badge ${scan.verdict}`}>{scan.score}</span>
                 </div>
-                <div className="sample-rule" />
-                <span className="sample-verdict">{scan.title}</span>
-                <p>{scan.detail}</p>
-                <div className="sample-footer">
-                  <span>Illustrative result</span>
-                  <span>View report <b>↗</b></span>
+                <div className="signal-card-body">
+                  <span>{scan.verdict === "clear" ? "✓" : "!"}</span>
+                  <div><strong>{scan.title}</strong><p>{scan.detail}</p></div>
                 </div>
+                <div className="signal-card-foot"><span>Illustrative result</span><span>Open report ↗</span></div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="checks-section section" id="checks">
-          <div className="shell">
-            <div
-              className={`section-heading centered-heading reveal ${checksVisible ? "is-visible" : ""}`}
-              ref={checksRef}
-            >
-              <span className="section-kicker">Three checks. One verdict.</span>
-              <h2>The risk signals that matter first.</h2>
-              <p>Focused enough to understand. Useful enough to stop obvious mistakes.</p>
-            </div>
-
-            <div
-              className={`checks-grid reveal-stagger ${checksGridVisible ? "is-visible" : ""}`}
-              ref={checksGridRef}
-            >
-              {CHECKS.map((check) => (
-                <article className="check-card" key={check.number}>
-                  <div className="check-number">{check.number}</div>
-                  <div className="check-icon"><Icon name={check.icon} /></div>
-                  <h3>{check.title}</h3>
-                  <p>{check.text}</p>
-                  <div className="check-status"><i /> Included in every scan</div>
-                </article>
-              ))}
-            </div>
+        <section className="method-section" id="checks">
+          <div className="method-intro">
+            <span className="product-kicker">The fast filter</span>
+            <h2>What Rugout checks first.</h2>
+            <p>Not a hundred noisy metrics. The three contract and ownership signals worth seeing before anything else.</p>
           </div>
-        </section>
-
-        <section className="how-section section shell" id="how">
-          <div className={`how-card reveal ${howVisible ? "is-visible" : ""}`} ref={howRef}>
-            <div className="how-copy">
-              <span className="section-kicker">From mint to meaning</span>
-              <h2>One paste. No twelve tabs.</h2>
-              <p>
-                Rugout reads public Solana account data, tests the core risk signals,
-                and translates the result into plain language.
-              </p>
-            </div>
-            <ol className="steps">
-              <li><span>1</span><div><strong>Paste the mint</strong><p>Drop in any SPL token mint address.</p></div></li>
-              <li><span>2</span><div><strong>Rugout checks it</strong><p>Authorities and top holder concentration are inspected.</p></div></li>
-              <li><span>3</span><div><strong>Read the verdict</strong><p>Get the flags, the reason, and the raw values behind them.</p></div></li>
-            </ol>
+          <div className={`method-list reveal-stagger ${checksGridVisible ? "is-visible" : ""}`} ref={checksGridRef}>
+            {CHECKS.map((check) => (
+              <article key={check.number}>
+                <span className="method-number">{check.number}</span>
+                <div className="method-icon"><Icon name={check.icon} /></div>
+                <div><h3>{check.title}</h3><p>{check.text}</p></div>
+                <span className="method-status"><i /> Included</span>
+              </article>
+            ))}
           </div>
-        </section>
-
-        <section className={`final-cta shell reveal ${ctaVisible ? "is-visible" : ""}`} ref={ctaRef}>
-          <div className="cta-mascot"><Sniffer pose="idle" size={132} /></div>
-          <span className="section-kicker">Check before you trust</span>
-          <h2>Paste it before you ape it.</h2>
-          <button onClick={() => document.querySelector(".scan-box input")?.focus()}>
-            Scan a Solana token <Icon name="arrow" />
-          </button>
         </section>
       </main>
 
-      <footer className="footer shell">
-        <a className="wordmark" href="#top"><span className="fold-icon" /> Rugout</a>
+      <footer className="app-footer">
+        <a className="app-brand" href="#top"><span className="brand-mark"><span /></span><span>rugout</span></a>
         <p>Risk signals, not financial advice. Always do your own research.</p>
         <span>Built on public Solana data.</span>
       </footer>
